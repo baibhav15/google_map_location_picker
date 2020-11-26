@@ -235,7 +235,7 @@ class MapPickerState extends State<MapPicker> {
                       loadingIndicator: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          CircularProgressIndicator(),
+                          CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),),
                         ],
                       ),
                       builder: (context, data) {
@@ -505,7 +505,7 @@ class _MapFabs extends StatelessWidget {
               onPressed: onToggleMapTypePressed,
               materialTapTargetSize: MaterialTapTargetSize.padded,
               mini: true,
-              child: const Icon(Icons.layers),
+              child: const Icon(Icons.layers, color: Colors.white),
               heroTag: "layers",
             ),
           if (myLocationButtonEnabled)
@@ -514,7 +514,7 @@ class _MapFabs extends StatelessWidget {
               onPressed: onMyLocationPressed,
               materialTapTargetSize: MaterialTapTargetSize.padded,
               mini: true,
-              child: const Icon(Icons.my_location),
+              child: const Icon(Icons.my_location, color: Colors.white),
               heroTag: "myLocation",
             ),
         ],
