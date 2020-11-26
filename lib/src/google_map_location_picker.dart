@@ -211,7 +211,7 @@ class LocationPickerState extends State<LocationPicker> {
   /// proceeds to moving the map to that location.
   void decodeAndSelectPlace(String placeId) {
     clearOverlay();
-
+    FocusScope.of(context).unfocus();
     String endpoint =
         "https://maps.googleapis.com/maps/api/place/details/json?key=${widget.apiKey}" + "&placeid=$placeId" + '&language=${widget.language}';
 
