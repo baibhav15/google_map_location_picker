@@ -158,24 +158,19 @@ class LocationPickerState extends State<LocationPicker> {
     final countries = widget.countries;
 
     // Currently, you can use components to filter by up to 5 countries. from https://developers.google.com/places/web-service/autocomplete
-    String regionParam = countries?.isNotEmpty == true
-        ? "&components=country:${countries.sublist(0, min(countries.length, 5)).join('|country:')}"
-        : "";
+    String regionParam =
+        countries?.isNotEmpty == true ? "&components=country:${countries.sublist(0, min(countries.length, 5)).join('|country:')}" : "";
 
-    var endpoint =
-        "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
-            "key=${widget.apiKey}&" +
-            "input={$place}$regionParam&sessiontoken=$sessionToken&" +
-            "language=${widget.language}";
+    var endpoint = "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
+        "key=${widget.apiKey}&" +
+        "input={$place}$regionParam&sessiontoken=$sessionToken&" +
+        "language=${widget.language}";
 
     if (locationResult != null) {
-      endpoint += "&location=${locationResult.latLng.latitude}," +
-          "${locationResult.latLng.longitude}";
+      endpoint += "&location=${locationResult.latLng.latitude}," + "${locationResult.latLng.longitude}";
     }
 
-    LocationUtils.getAppHeaders()
-        .then((headers) => http.get(endpoint, headers: headers))
-        .then((response) {
+    LocationUtils.getAppHeaders().then((headers) => http.get(endpoint, headers: headers)).then((response) {
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
         List<dynamic> predictions = data['predictions'];
@@ -218,16 +213,11 @@ class LocationPickerState extends State<LocationPicker> {
     clearOverlay();
 
     String endpoint =
-        "https://maps.googleapis.com/maps/api/place/details/json?key=${widget.apiKey}" +
-            "&placeid=$placeId" +
-            '&language=${widget.language}';
+        "https://maps.googleapis.com/maps/api/place/details/json?key=${widget.apiKey}" + "&placeid=$placeId" + '&language=${widget.language}';
 
-    LocationUtils.getAppHeaders()
-        .then((headers) => http.get(endpoint, headers: headers))
-        .then((response) {
+    LocationUtils.getAppHeaders().then((headers) => http.get(endpoint, headers: headers)).then((response) {
       if (response.statusCode == 200) {
-        Map<String, dynamic> location =
-            jsonDecode(response.body)['result']['geometry']['location'];
+        Map<String, dynamic> location = jsonDecode(response.body)['result']['geometry']['location'];
 
         LatLng latLng = LatLng(location['lat'], location['lng']);
 
@@ -295,8 +285,7 @@ class LocationPickerState extends State<LocationPicker> {
         .then((response) {
       if (response.statusCode == 200) {
         nearbyPlaces.clear();
-        for (Map<String, dynamic> item
-            in jsonDecode(response.body)['results']) {
+        for (Map<String, dynamic> item in jsonDecode(response.body)['results']) {
           NearbyPlace nearbyPlace = NearbyPlace();
 
           nearbyPlace.name = item['name'];
@@ -340,8 +329,7 @@ class LocationPickerState extends State<LocationPicker> {
         road = 'REQUEST DENIED = please see log for more details';
         print(responseJson['error_message']);
       } else {
-        road =
-            responseJson['results'][0]['address_components'][0]['short_name'];
+        road = responseJson['results'][0]['address_components'][0]['short_name'];
       }
 
 //      String locality =
@@ -381,6 +369,8 @@ class LocationPickerState extends State<LocationPicker> {
     super.dispose();
   }
 
+  static Color primaryColor = Color(0xFF0e52d6);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -391,15 +381,24 @@ class LocationPickerState extends State<LocationPicker> {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            iconTheme: Theme.of(context).iconTheme,
+            iconTheme: IconThemeData(
+              color: Colors.white, //change your color here
+            ),
+            automaticallyImplyLeading: true,
             elevation: 0,
-            backgroundColor: widget.appBarColor,
+            backgroundColor: primaryColor,
             key: appBarKey,
-            title: SearchInput(
-              (input) => searchPlace(input),
-              key: searchInputKey,
-              boxDecoration: widget.searchBarBoxDecoration,
-              hintText: widget.hintText,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(50.0),
+              child: Container(
+                child: SearchInput(
+                  (input) => searchPlace(input),
+                  key: searchInputKey,
+                  boxDecoration: widget.searchBarBoxDecoration,
+                  hintText: widget.hintText,
+                ),
+                color: Colors.white,
+              ),
             ),
           ),
           body: MapPicker(
@@ -409,8 +408,7 @@ class LocationPickerState extends State<LocationPicker> {
             requiredGPS: widget.requiredGPS,
             myLocationButtonEnabled: widget.myLocationButtonEnabled,
             layersButtonEnabled: widget.layersButtonEnabled,
-            automaticallyAnimateToCurrentLocation:
-                widget.automaticallyAnimateToCurrentLocation,
+            automaticallyAnimateToCurrentLocation: widget.automaticallyAnimateToCurrentLocation,
             mapStylePath: widget.mapStylePath,
             appBarColor: widget.appBarColor,
             searchBarBoxDecoration: widget.searchBarBoxDecoration,
@@ -471,8 +469,7 @@ Future<LocationResult> showLocationPicker(
           requiredGPS: requiredGPS,
           myLocationButtonEnabled: myLocationButtonEnabled,
           layersButtonEnabled: layersButtonEnabled,
-          automaticallyAnimateToCurrentLocation:
-              automaticallyAnimateToCurrentLocation,
+          automaticallyAnimateToCurrentLocation: automaticallyAnimateToCurrentLocation,
           mapStylePath: mapStylePath,
           appBarColor: appBarColor,
           hintText: hintText,
