@@ -40,7 +40,10 @@ class LocationPicker extends StatefulWidget {
     this.countries,
     this.language,
     this.desiredAccuracy,
+    this.option,
   });
+
+  final int option;
 
   final String apiKey;
 
@@ -106,6 +109,7 @@ class LocationPickerState extends State<LocationPicker> {
   void searchPlace(String place) {
     if (context == null) return;
 
+    print("SEARCH CALLED");
     clearOverlay();
 
     setState(() => hasSearchTerm = place.length > 0);
@@ -166,11 +170,13 @@ class LocationPickerState extends State<LocationPicker> {
         "input={$place}$regionParam&sessiontoken=$sessionToken&" +
         "language=${widget.language}";
 
+    print("END Called");
     if (locationResult != null) {
       endpoint += "&location=${locationResult.latLng.latitude}," + "${locationResult.latLng.longitude}";
     }
 
     LocationUtils.getAppHeaders().then((headers) => http.get(endpoint, headers: headers)).then((response) {
+      print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
         List<dynamic> predictions = data['predictions'];
@@ -202,6 +208,8 @@ class LocationPickerState extends State<LocationPicker> {
         displayAutoCompleteSuggestions(suggestions);
       }
     }).catchError((error) {
+      print("CALLED END");
+      print(endpoint);
       print(error);
     });
   }
@@ -211,7 +219,11 @@ class LocationPickerState extends State<LocationPicker> {
   /// proceeds to moving the map to that location.
   void decodeAndSelectPlace(String placeId) {
     clearOverlay();
-    FocusScope.of(context).unfocus();
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
     String endpoint =
         "https://maps.googleapis.com/maps/api/place/details/json?key=${widget.apiKey}" + "&placeid=$placeId" + '&language=${widget.language}';
 
@@ -324,7 +336,7 @@ class LocationPickerState extends State<LocationPicker> {
       String road;
 
       String placeId = responseJson['results'][0]['place_id'];
-
+      print(responseJson);
       if (responseJson['status'] == 'REQUEST_DENIED') {
         road = 'REQUEST DENIED = please see log for more details';
         print(responseJson['error_message']);
@@ -340,6 +352,7 @@ class LocationPickerState extends State<LocationPicker> {
         locationResult.address = road;
         locationResult.latLng = latLng;
         locationResult.placeId = placeId;
+        locationResult.radius = mapKey.currentState.circleRadius;
       });
     }
   }
@@ -347,19 +360,21 @@ class LocationPickerState extends State<LocationPicker> {
   /// Moves the camera to the provided location and updates other UI features to
   /// match the location.
   void moveToLocation(LatLng latLng) {
+    double zoomLevel = 16;
+    if (widget.option == 2) {
+      zoomLevel = mapKey.currentState.getZoomLevel();
+    }
     mapKey.currentState.mapController.future.then((controller) {
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: latLng,
-            zoom: 16,
+            zoom: zoomLevel,
           ),
         ),
       );
     });
-
     reverseGeocodeLatLng(latLng);
-
     getNearbyPlaces(latLng);
   }
 
@@ -420,6 +435,7 @@ class LocationPickerState extends State<LocationPicker> {
             key: mapKey,
             language: widget.language,
             desiredAccuracy: widget.desiredAccuracy,
+            option: widget.option,
           ),
         );
       }),
@@ -481,6 +497,7 @@ Future<LocationResult> showLocationPicker(
           countries: countries,
           language: language,
           desiredAccuracy: desiredAccuracy,
+          option: 2,
         );
       },
     ),

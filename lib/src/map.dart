@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:android_intent/android_intent.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map_location_picker/generated/l10n.dart';
 import 'package:google_map_location_picker/src/providers/location_provider.dart';
+import 'package:google_map_location_picker/src/radius_selection.dart';
 import 'package:google_map_location_picker/src/utils/loading_builder.dart';
 import 'package:google_map_location_picker/src/utils/log.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -41,7 +43,10 @@ class MapPicker extends StatefulWidget {
     this.resultCardPadding,
     this.language,
     this.desiredAccuracy,
+    this.option,
   }) : super(key: key);
+
+  final int option;
 
   final String apiKey;
 
@@ -108,15 +113,89 @@ class MapPickerState extends State<MapPicker> {
     if (!mounted) return;
 
     setState(() => _currentPosition = currentPosition);
+    if (widget.option == 2) {
+      setState(() {
+        circles.clear();
+        circles.add(
+          Circle(
+              circleId: CircleId("1"),
+              center: LatLng(currentPosition.latitude, currentPosition.longitude),
+              radius: circleRadius,
+              strokeColor: primaryColor,
+              fillColor: Color(0x220e52d6),
+              strokeWidth: 1),
+        );
+        getZoomLevel();
+      });
+    }
 
     if (currentPosition != null) moveToCurrentLocation(LatLng(currentPosition.latitude, currentPosition.longitude));
+  }
+
+  updateRadius(double radius) {
+    circleRadius = radius;
+    print("RADIUS = " + radius.toString());
+    /*if (radius == 0) {
+      circles.clear();
+      setState(() {
+        getZoomLevel();
+      });
+    } else {
+      circles.clear();
+      setState(() {
+        circles.add(
+          Circle(
+            circleId: CircleId("2"),
+            center: _lastMapPosition,
+            radius: radius,
+            strokeColor: primaryColor,
+            fillColor: Color(0x220e52d6),
+            strokeWidth: 1,
+          ),
+        );
+        getZoomLevel();
+      });
+    }*/
+    circles.clear();
+    if (radius != 0) {
+      circles.add(
+        Circle(
+          circleId: CircleId("2"),
+          center: _lastMapPosition,
+          radius: radius,
+          strokeColor: primaryColor,
+          fillColor: Color(0x220e52d6),
+          strokeWidth: 1,
+        ),
+      );
+    }
+    getZoomLevel();
+    print("CIRC  = " + circles.toString());
+    moveToCurrentLocation(LatLng(_lastMapPosition.latitude, _lastMapPosition.longitude));
+  }
+
+  double zoomLevel = 16;
+  double circleRadius = 10000;
+  getZoomLevel() {
+    if (circles.isNotEmpty) {
+      if (circles.first != null) {
+        double radius = circles.first.radius;
+        double scale = radius / 500;
+        zoomLevel = (16 - log(scale) / log(2))- 0.5;
+      }
+      print("zoom called = " + zoomLevel.toString());
+      return zoomLevel;
+    } else {
+      return 16;
+    }
   }
 
   Future moveToCurrentLocation(LatLng currentLocation) async {
     d('MapPickerState.moveToCurrentLocation "currentLocation = [$currentLocation]"');
     final controller = await mapController.future;
+    print("new camera called = " + zoomLevel.toString());
     controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(target: currentLocation, zoom: 16),
+      CameraPosition(target: currentLocation, zoom: zoomLevel),
     ));
   }
 
@@ -154,6 +233,7 @@ class MapPickerState extends State<MapPicker> {
     );
   }
 
+  Set<Circle> circles = Set.from([]);
   Widget buildMap() {
     return Center(
       child: Stack(
@@ -165,6 +245,7 @@ class MapPickerState extends State<MapPicker> {
               target: widget.initialCenter,
               zoom: widget.initialZoom,
             ),
+            circles: circles,
             onMapCreated: (GoogleMapController controller) {
               mapController.complete(controller);
               //Implementation of mapStyle
@@ -181,10 +262,26 @@ class MapPickerState extends State<MapPicker> {
             onCameraIdle: () async {
               print("onCameraIdle#_lastMapPosition = $_lastMapPosition");
               LocationProvider.of(context, listen: false).setLastIdleLocation(_lastMapPosition);
+              if (widget.option == 2) {
+                setState(() {
+                  circles.clear();
+                  circles.add(
+                    Circle(
+                      circleId: CircleId("2"),
+                      center: _lastMapPosition,
+                      radius: circleRadius,
+                      strokeColor: primaryColor,
+                      fillColor: Color(0x220e52d6),
+                      strokeWidth: 1,
+                    ),
+                  );
+                });
+              }
             },
             onCameraMoveStarted: () {
               print("onCameraMoveStarted#_lastMapPosition = $_lastMapPosition");
             },
+
 //            onTap: (latLng) {
 //              clearOverlay();
 //            },
@@ -207,99 +304,112 @@ class MapPickerState extends State<MapPicker> {
   Widget locationCard() {
     return Align(
       alignment: widget.resultCardAlignment ?? Alignment.bottomCenter,
-      child: Padding(
-        padding: widget.resultCardPadding ?? EdgeInsets.all(0.0),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: <Color>[primaryColor, primaryColorLight],
-            ),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(2),
-              topRight: Radius.circular(2),
-            ),
-          ),
-          padding: EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
-          width: double.infinity,
-          child: Consumer<LocationProvider>(builder: (context, locationProvider, _) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 5.0, right: 5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(
-                    flex: 20,
-                    child: FutureLoadingBuilder<Map<String, String>>(
-                      future: getAddress(locationProvider.lastIdleLocation),
-                      mutable: true,
-                      loadingIndicator: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),),
-                        ],
-                      ),
-                      builder: (context, data) {
-                        _address = data["address"];
-                        _placeId = data["placeId"];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Address',
-                              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              _address ?? S.of(context)?.unnamedPlace ?? 'Unnamed place',
-                              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              'This allows the Q-expert to navigate properly',
-                              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
-                            ),
-                          ],
-                          mainAxisSize: MainAxisSize.min,
-                        );
-                      },
-                    ),
+      child: Column(
+        children: [
+          widget.option == 2
+              ? Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  child: RadiusSelection(
+                    mapKey: widget.key,
                   ),
-                  Spacer(),
-                  Spacer(),
-                  InkWell(
-                    child: Container(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Next',
-                            style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                )
+              : SizedBox(height: 0),
+          Padding(
+            padding: widget.resultCardPadding ?? EdgeInsets.all(0.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: <Color>[primaryColor, primaryColorLight],
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(2),
+                  topRight: Radius.circular(2),
+                ),
+              ),
+              padding: EdgeInsets.only(right: 15, left: 15, top: 10, bottom: 10),
+              width: double.infinity,
+              child: Consumer<LocationProvider>(builder: (context, locationProvider, _) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 5.0, right: 5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Flexible(
+                        flex: 20,
+                        child: FutureLoadingBuilder<Map<String, String>>(
+                          future: getAddress(locationProvider.lastIdleLocation),
+                          mutable: true,
+                          loadingIndicator: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              CircularProgressIndicator(
+                                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            width: 2,
-                          ),
-                          Image.asset(
-                            "assets/icons/outline_play.png",
-                            height: 12,
-                            width: 12,
-                          ),
-                        ],
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                          builder: (context, data) {
+                            _address = data["address"];
+                            _placeId = data["placeId"];
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Address',
+                                  style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  _address ?? S.of(context)?.unnamedPlace ?? 'Unnamed place',
+                                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  'This allows the Q-expert to navigate properly',
+                                  style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                                ),
+                              ],
+                              mainAxisSize: MainAxisSize.min,
+                            );
+                          },
+                        ),
                       ),
-                      height: 50,
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop({
-                        'location': LocationResult(
-                          latLng: locationProvider.lastIdleLocation,
-                          address: _address,
-                          placeId: _placeId,
-                        )
-                      });
-                    },
-                  ),
-                  /*FloatingActionButton(
+                      Spacer(),
+                      Spacer(),
+                      InkWell(
+                        child: Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Next',
+                                style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Image.asset(
+                                "assets/icons/outline_play.png",
+                                height: 12,
+                                width: 12,
+                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                          height: 50,
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop({
+                            'location': LocationResult(
+                              latLng: locationProvider.lastIdleLocation,
+                              address: _address,
+                              placeId: _placeId,
+                              radius: circleRadius
+                            )
+                          });
+                        },
+                      ),
+                      /*FloatingActionButton(
                     onPressed: () {
                       Navigator.of(context).pop({
                         'location': LocationResult(
@@ -311,11 +421,14 @@ class MapPickerState extends State<MapPicker> {
                     },
                     child: widget.resultCardConfirmIcon ?? Icon(Icons.arrow_forward),
                   ),*/
-                ],
-              ),
-            );
-          }),
-        ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+        mainAxisSize: MainAxisSize.min,
       ),
     );
   }

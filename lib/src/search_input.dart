@@ -24,7 +24,7 @@ class SearchInput extends StatefulWidget {
 
 class SearchInputState extends State<SearchInput> {
   TextEditingController editController = TextEditingController();
-
+  FocusNode textFocusNode = new FocusNode();
   Timer debouncer;
 
   bool hasSearchEntry = false;
@@ -32,18 +32,22 @@ class SearchInputState extends State<SearchInput> {
   @override
   void initState() {
     super.initState();
+    textFocusNode = FocusNode();
     editController.addListener(onSearchInputChange);
   }
 
   @override
   void dispose() {
     editController.removeListener(onSearchInputChange);
+    textFocusNode.dispose();
     editController.dispose();
 
     super.dispose();
   }
 
   void onSearchInputChange() {
+    print("INPUT = " +  editController.text);
+    print("FOCUS =" + textFocusNode.hasFocus.toString());
     if (editController.text.isEmpty) {
       debouncer?.cancel();
       widget.onSearchInput(editController.text);
@@ -53,10 +57,12 @@ class SearchInputState extends State<SearchInput> {
     if (debouncer?.isActive ?? false) {
       debouncer.cancel();
     }
+    if(textFocusNode.hasFocus==true){
+      debouncer = Timer(Duration(milliseconds: 500), () {
+        widget.onSearchInput(editController.text);
+      });
+    }
 
-    debouncer = Timer(Duration(milliseconds: 500), () {
-      widget.onSearchInput(editController.text);
-    });
   }
 
   @override
@@ -76,6 +82,7 @@ class SearchInputState extends State<SearchInput> {
           SizedBox(width: 8),
           Expanded(
             child: TextField(
+              focusNode: textFocusNode,
               controller: editController,
               decoration: InputDecoration(
                 hintText: widget.hintText ??

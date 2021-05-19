@@ -13,10 +13,12 @@ class LocationResult {
   /// Latitude/Longitude of the selected location.
   LatLng latLng;
 
-  LocationResult({this.latLng, this.address, this.placeId});
+  double radius;
+
+  LocationResult({this.latLng, this.address, this.placeId, this.radius});
 
   @override
   String toString() {
-    return 'LocationResult{address: $address, latLng: $latLng, placeId: $placeId}';
+    return 'LocationResult{address: $address, latLng: $latLng, placeId: $placeId, radius: $radius}';
   }
 }

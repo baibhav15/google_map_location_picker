@@ -75,7 +75,7 @@ Specify your API key in the application manifest `android/app/src/main/AndroidMa
 <manifest ...
   <application ...
     <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="YOUR KEY HERE"/>
+               android:value=""/>
 ```
 
 ### iOS
@@ -174,3 +174,6 @@ The google map from [Flutter's](https://github.com/flutter) [google_maps_flutter
 current location and permission from [BaseflowIT's](https://github.com/BaseflowIT) [flutter-geolocator](https://github.com/baseflowit/flutter-geolocator) package.
 
 The search bar from [Degreat's](https://github.com/blackmann) [locationpicker](https://github.com/blackmann/locationpicker) package.
+
+
+option: 1 = normal, 2 = radius and location selector, 3 = mark map with pins
