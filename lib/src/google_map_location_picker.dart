@@ -473,6 +473,7 @@ Future<LocationResult> showLocationPicker(
   Decoration resultCardDecoration,
   String language = 'en',
   LocationAccuracy desiredAccuracy = LocationAccuracy.best,
+  int option = 1,
 }) async {
   final results = await Navigator.of(context).push(
     MaterialPageRoute<dynamic>(
@@ -497,7 +498,7 @@ Future<LocationResult> showLocationPicker(
           countries: countries,
           language: language,
           desiredAccuracy: desiredAccuracy,
-          option: 2,
+          option: option,
         );
       },
     ),
