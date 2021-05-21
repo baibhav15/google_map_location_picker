@@ -362,11 +362,11 @@ class MapPickerState extends State<MapPicker> {
                                   _address ?? S.of(context)?.unnamedPlace ?? 'Unnamed place',
                                   style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
                                 ),
-                                SizedBox(height: 5),
+                               /* SizedBox(height: 5),
                                 Text(
                                   'This allows the Q-expert to navigate properly',
                                   style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
-                                ),
+                                ),*/
                               ],
                               mainAxisSize: MainAxisSize.min,
                             );
