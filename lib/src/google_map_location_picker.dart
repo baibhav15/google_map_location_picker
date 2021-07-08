@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map_location_picker/generated/l10n.dart';
 import 'package:google_map_location_picker/src/map.dart';
@@ -385,6 +386,7 @@ class LocationPickerState extends State<LocationPicker> {
   }
 
   static Color primaryColor = Color(0xFF0e52d6);
+  static Color bgColorNew = Color(0xFFFAFAFA);
 
   @override
   Widget build(BuildContext context) {
@@ -395,24 +397,32 @@ class LocationPickerState extends State<LocationPicker> {
       child: Builder(builder: (context) {
         return Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            iconTheme: IconThemeData(
-              color: Colors.white, //change your color here
+          appBar:  AppBar(
+            leadingWidth: 10.0,
+            iconTheme: IconThemeData(color: primaryColor),
+            backwardsCompatibility: false,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.dark,
+              systemNavigationBarIconBrightness: Brightness.dark,
             ),
+            backgroundColor: bgColorNew,
+            titleSpacing: 40.0,
             automaticallyImplyLeading: true,
             elevation: 0,
-            backgroundColor: primaryColor,
             key: appBarKey,
-            bottom: PreferredSize(
+            flexibleSpace: PreferredSize(
               preferredSize: Size.fromHeight(50.0),
               child: Container(
+                margin: const EdgeInsets.only(left: 40.0, right: 15.0, bottom: 10.0, top: 40.0),
                 child: SearchInput(
                   (input) => searchPlace(input),
                   key: searchInputKey,
                   boxDecoration: widget.searchBarBoxDecoration,
                   hintText: widget.hintText,
                 ),
-                color: Colors.white,
+                color: bgColorNew,
               ),
             ),
           ),

@@ -22,7 +22,7 @@ import 'utils/location_utils.dart';
 
 Color primaryColor = Color(0xFF0e52d6);
 Color primaryColorLight = Color(0xFF02c2fa);
-
+Color bgColorNew = Color(0xFFFAFAFA);
 class MapPicker extends StatefulWidget {
   const MapPicker(
     this.apiKey, {
@@ -77,6 +77,15 @@ class MapPicker extends StatefulWidget {
 }
 
 class MapPickerState extends State<MapPicker> {
+
+  static const GOLDEN_RATIO = 1.25;
+  static const H4Size = 10.5;
+  static const H3Size = H4Size * GOLDEN_RATIO;
+  static const H2Size = H3Size * GOLDEN_RATIO;
+  static const H1Size = H2Size * GOLDEN_RATIO;
+  static const H5Size = H4Size / GOLDEN_RATIO;
+  static const H6Size = H5Size / GOLDEN_RATIO;
+
   Completer<GoogleMapController> mapController = Completer();
 
   MapType _currentMapType = MapType.normal;
@@ -319,7 +328,7 @@ class MapPickerState extends State<MapPicker> {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: <Color>[primaryColor, primaryColorLight],
+                  colors: <Color>[bgColorNew, bgColorNew],
                 ),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(2),
@@ -343,7 +352,8 @@ class MapPickerState extends State<MapPicker> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               CircularProgressIndicator(
-                                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: new AlwaysStoppedAnimation<Color>(primaryColor),
+                                strokeWidth: 2,
                               ),
                             ],
                           ),
@@ -354,13 +364,13 @@ class MapPickerState extends State<MapPicker> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Address',
-                                  style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                                  'ADDRESS',
+                                  style: TextStyle(color: Color(0xFF4D4D4D), fontSize: H5Size, fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(height: 5),
                                 Text(
                                   _address ?? S.of(context)?.unnamedPlace ?? 'Unnamed place',
-                                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
+                                  style: TextStyle(color: Color(0xFF505050), fontSize: H4Size, fontWeight: FontWeight.w400),
                                 ),
                                /* SizedBox(height: 5),
                                 Text(
@@ -381,16 +391,16 @@ class MapPickerState extends State<MapPicker> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Next',
-                                style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
+                                'NEXT',
+                                style: TextStyle(color: primaryColor, fontSize: H4Size, fontWeight: FontWeight.w700),
                               ),
                               SizedBox(
                                 width: 2,
                               ),
-                              Image.asset(
-                                "assets/icons/outline_play.png",
-                                height: 12,
-                                width: 12,
+                              Icon(
+                                Icons.navigate_next,
+                                size: 20,
+                                color: primaryColor,
                               ),
                             ],
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -609,7 +619,7 @@ class _MapFabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topRight,
-      margin: const EdgeInsets.only(top: kToolbarHeight + 80, right: 8),
+      margin: const EdgeInsets.only(top: kToolbarHeight + 40, right: 8),
       child: Column(
         children: <Widget>[
           if (layersButtonEnabled)

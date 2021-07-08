@@ -26,7 +26,7 @@ class SearchInputState extends State<SearchInput> {
   TextEditingController editController = TextEditingController();
   FocusNode textFocusNode = new FocusNode();
   Timer debouncer;
-
+  static Color bgColorNew = Color(0xFFFAFAFA);
   bool hasSearchEntry = false;
 
   @override
@@ -73,7 +73,7 @@ class SearchInputState extends State<SearchInput> {
             borderRadius: BorderRadius.circular(16),
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.black54
-                : Colors.white,
+                :bgColorNew,
           ),
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Row(
