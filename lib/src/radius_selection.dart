@@ -3,10 +3,10 @@ import 'package:google_map_location_picker/src/map.dart';
 
 class RadiusSelection extends StatefulWidget {
   RadiusSelection({
-    Key key,
-    @required this.mapKey
+    Key? key,
+    required this.mapKey
   }) : super(key: key);
-  final Key mapKey;
+  final Key? mapKey;
   @override
   _RadiusSelectionState createState() => _RadiusSelectionState(mapKey);
 }
