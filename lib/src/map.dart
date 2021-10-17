@@ -345,7 +345,7 @@ class MapPickerState extends State<MapPicker> {
                     children: <Widget>[
                       Flexible(
                         flex: 20,
-                        child: FutureLoadingBuilder<Map<String, String?>>(
+                        child: FutureLoadingBuilder<Map<String, String?>?>(
                           future: getAddress(locationProvider.lastIdleLocation),
                           mutable: true,
                           loadingIndicator: Row(
@@ -358,7 +358,7 @@ class MapPickerState extends State<MapPicker> {
                             ],
                           ),
                           builder: (context, data) {
-                            _address = data["address"];
+                            _address = data!["address"];
                             _placeId = data["placeId"];
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
