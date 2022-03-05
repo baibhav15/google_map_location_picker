@@ -108,7 +108,7 @@ class LocationPickerState extends State<LocationPicker> {
   /// is hidden so as to give more room and better experience for the
   /// autocomplete list overlay.
   void searchPlace(String place) {
-    if (context == null) return;
+    //if (context == null) return;
 
     print("SEARCH CALLED");
     clearOverlay();
@@ -176,7 +176,7 @@ class LocationPickerState extends State<LocationPicker> {
       endpoint += "&location=${locationResult!.latLng!.latitude}," + "${locationResult!.latLng!.longitude}";
     }
 
-    LocationUtils.getAppHeaders().then((headers) => http.get(Uri.parse(endpoint), headers: headers as Map<String, String>?)).then((response) {
+    LocationUtils.getAppHeaders().then((headers) => http.get(Uri.parse(endpoint), headers: headers)).then((response) {
       print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
@@ -228,7 +228,7 @@ class LocationPickerState extends State<LocationPicker> {
     String endpoint =
         "https://maps.googleapis.com/maps/api/place/details/json?key=${widget.apiKey}" + "&placeid=$placeId" + '&language=${widget.language}';
 
-    LocationUtils.getAppHeaders().then((headers) => http.get(Uri.parse(endpoint), headers: headers as Map<String, String>?)).then((response) {
+    LocationUtils.getAppHeaders().then((headers) => http.get(Uri.parse(endpoint), headers: headers)).then((response) {
       if (response.statusCode == 200) {
         Map<String, dynamic> location = jsonDecode(response.body)['result']['geometry']['location'];
 
@@ -294,7 +294,7 @@ class LocationPickerState extends State<LocationPicker> {
                 "key=${widget.apiKey}&" +
                 "location=${latLng.latitude},${latLng.longitude}&radius=150" +
                 "&language=${widget.language}"),
-            headers: headers as Map<String, String>?))
+            headers: headers))
         .then((response) {
       if (response.statusCode == 200) {
         nearbyPlaces.clear();
@@ -329,7 +329,7 @@ class LocationPickerState extends State<LocationPicker> {
         Uri.parse("https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.latitude},${latLng.longitude}" +
             "&key=${widget.apiKey}" +
             "&language=${widget.language}"),
-        headers: await (LocationUtils.getAppHeaders() as FutureOr<Map<String, String>?>));
+        headers: await (LocationUtils.getAppHeaders()));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseJson = jsonDecode(response.body);
@@ -398,9 +398,7 @@ class LocationPickerState extends State<LocationPicker> {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            leadingWidth: 10.0,
             iconTheme: IconThemeData(color: primaryColor),
-            backwardsCompatibility: false,
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.dark,
@@ -408,7 +406,7 @@ class LocationPickerState extends State<LocationPicker> {
               systemNavigationBarIconBrightness: Brightness.dark,
             ),
             backgroundColor: bgColorNew,
-            titleSpacing: 40.0,
+            titleSpacing: 0.0,
             automaticallyImplyLeading: true,
             elevation: 0,
             key: appBarKey,

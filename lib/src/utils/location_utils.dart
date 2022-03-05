@@ -1,7 +1,6 @@
 import 'dart:io';
-
-import 'package:package_info/package_info.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class LocationUtils {
   static const _platform = const MethodChannel('google_map_location_picker');

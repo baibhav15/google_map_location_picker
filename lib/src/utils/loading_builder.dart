@@ -98,7 +98,7 @@ class _FutureLoadingBuilderState<T> extends State<FutureLoadingBuilder<T?>> {
 
             return widget.builder!(context, snapshot.data);
         }
-        return widget.builder!(context, snapshot.data);
+        //return widget.builder!(context, snapshot.data);
       },
     );
   }

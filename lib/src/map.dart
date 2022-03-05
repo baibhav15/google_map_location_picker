@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
-import 'package:android_intent/android_intent.dart';
+//import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
@@ -187,11 +185,11 @@ class MapPickerState extends State<MapPicker> {
   double circleRadius = 10000;
   getZoomLevel() {
     if (circles.isNotEmpty) {
-      if (circles.first != null) {
+  //    if (circles.first != null) {
         double radius = circles.first.radius;
         double scale = radius / 500;
         zoomLevel = (16 - log(scale) / log(2))- 0.5;
-      }
+   //   }
       print("zoom called = " + zoomLevel.toString());
       return zoomLevel;
     } else {
@@ -448,7 +446,7 @@ class MapPickerState extends State<MapPicker> {
       final endPoint = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${location?.latitude},${location?.longitude}'
           '&key=${widget.apiKey}&language=${widget.language}';
 
-      var response = jsonDecode((await http.get(Uri.parse(endPoint), headers: await (LocationUtils.getAppHeaders() as FutureOr<Map<String, String>?>))).body);
+      var response = jsonDecode((await http.get(Uri.parse(endPoint), headers: await (LocationUtils.getAppHeaders()))).body);
 
       return {"placeId": response['results'][0]['place_id'], "address": response['results'][0]['formatted_address']};
     } catch (e) {
@@ -523,7 +521,7 @@ class MapPickerState extends State<MapPicker> {
             title: Text(S.of(context)?.access_to_location_denied ?? 'Access to location denied'),
             content: Text(S.of(context)?.allow_access_to_the_location_services ?? 'Allow access to the location services.'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(S.of(context)?.ok ?? 'Ok'),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
@@ -554,7 +552,7 @@ class MapPickerState extends State<MapPicker> {
             content: Text(S.of(context)?.allow_access_to_the_location_services_from_settings ??
                 'Allow access to the location services for this App using the device settings.'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(S.of(context)?.ok ?? 'Ok'),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
@@ -570,7 +568,7 @@ class MapPickerState extends State<MapPicker> {
   }
 
   // TODO: 9/12/2020 this is no longer needed, remove in the next release
-  Future _checkGps() async {
+  /*Future _checkGps() async {
     if (!(await Geolocator.isLocationServiceEnabled())) {
       if (Theme.of(context).platform == TargetPlatform.android) {
         showDialog(
@@ -581,7 +579,7 @@ class MapPickerState extends State<MapPicker> {
               title: Text(S.of(context)?.cant_get_current_location ?? "Can't get current location"),
               content: Text(S.of(context)?.please_make_sure_you_enable_gps_and_try_again ?? 'Please make sure you enable GPS and try again'),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   child: Text('Ok'),
                   onPressed: () {
                     final AndroidIntent intent = AndroidIntent(action: 'android.settings.LOCATION_SOURCE_SETTINGS');
@@ -596,7 +594,7 @@ class MapPickerState extends State<MapPicker> {
         );
       }
     }
-  }
+  } */
 }
 
 class _MapFabs extends StatelessWidget {
@@ -606,8 +604,7 @@ class _MapFabs extends StatelessWidget {
     required this.layersButtonEnabled,
     required this.onToggleMapTypePressed,
     required this.onMyLocationPressed,
-  })  : assert(onToggleMapTypePressed != null),
-        super(key: key);
+  })  : super(key: key);
 
   final bool? myLocationButtonEnabled;
   final bool? layersButtonEnabled;

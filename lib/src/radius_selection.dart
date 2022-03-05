@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_map_location_picker/src/map.dart';
 
 class RadiusSelection extends StatefulWidget {
   RadiusSelection({
