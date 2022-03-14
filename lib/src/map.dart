@@ -134,7 +134,7 @@ class MapPickerState extends State<MapPicker> {
           // returned true. According to Android guidelines
           // your App should show an explanatory UI now.
           // _checkAndShowDialogLocation(context);
-          return Future.error('Location permissions are denied');
+          //return Future.error('Location permissions are denied');
         }
       }
 
@@ -142,8 +142,9 @@ class MapPickerState extends State<MapPicker> {
         // Permissions are denied forever, handle appropriately.
         if (btnPress) _checkAndShowDialogLocation(context);
 
-        if (permission == LocationPermission.deniedForever)
+        /*if (permission == LocationPermission.deniedForever) {
           return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+        }*/
       }
     } catch (e) {}
     try {

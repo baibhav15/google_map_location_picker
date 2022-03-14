@@ -82,7 +82,7 @@ class LocationNeededBottomModal {
                     ),
                     Flexible(
                       child: Text(
-                        "Because permission has been denied, we are unable to obtain your current location. Please close this dialogue and grant location permission.",
+                        "Because permission has been denied, we are unable to obtain your current location. Please close this dialogue, grant location permission and then try again.",
                         style: TextStyle(color: Color(0xFF505050), fontSize: H4Size, fontWeight: FontWeight.w400),
                       ),
                     ),
