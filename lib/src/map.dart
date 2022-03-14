@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
+import 'package:google_map_location_picker/components/location_needed.dart';
 import 'package:google_map_location_picker/generated/l10n.dart';
 import 'package:google_map_location_picker/src/providers/location_provider.dart';
 import 'package:google_map_location_picker/src/radius_selection.dart';
@@ -21,6 +22,7 @@ import 'utils/location_utils.dart';
 Color primaryColor = Color(0xFF0e52d6);
 Color primaryColorLight = Color(0xFF02c2fa);
 Color bgColorNew = Color(0xFFFAFAFA);
+
 class MapPicker extends StatefulWidget {
   const MapPicker(
     this.apiKey, {
@@ -75,7 +77,6 @@ class MapPicker extends StatefulWidget {
 }
 
 class MapPickerState extends State<MapPicker> {
-
   static const GOLDEN_RATIO = 1.25;
   static const H4Size = 10.5;
   static const H3Size = H4Size * GOLDEN_RATIO;
@@ -104,9 +105,47 @@ class MapPickerState extends State<MapPicker> {
     setState(() => _currentMapType = nextType);
   }
 
+  Future? _locationDialog;
+
+  _checkAndShowDialogLocation(BuildContext context) async {
+    if (_locationDialog == null) {
+      _locationDialog = LocationNeededBottomModal.show(context);
+      await _locationDialog;
+      _locationDialog = null;
+      await Geolocator.openAppSettings();
+    } else {
+      //do nothing
+    }
+  }
+
   // this also checks for location permission.
-  Future<void> _initCurrentLocation() async {
+  Future<void> _initCurrentLocation(bool btnPress) async {
     Position? currentPosition;
+    LocationPermission permission;
+    bool serviceEnabled;
+    try {
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Permissions are denied, next time you could try
+          // requesting permissions again (this is also where
+          // Android's shouldShowRequestPermissionRationale
+          // returned true. According to Android guidelines
+          // your App should show an explanatory UI now.
+          // _checkAndShowDialogLocation(context);
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        // Permissions are denied forever, handle appropriately.
+        if (btnPress) _checkAndShowDialogLocation(context);
+
+        if (permission == LocationPermission.deniedForever)
+          return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+      }
+    } catch (e) {}
     try {
       currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: widget.desiredAccuracy!);
       d("position = $currentPosition");
@@ -116,6 +155,28 @@ class MapPickerState extends State<MapPicker> {
       currentPosition = null;
       d("_initCurrentLocation#e = $e");
     }
+    /* serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+        // Location services are not enabled don't continue
+        // accessing the position and request users of the
+        // App to enable the location services.
+        //return Future.error('Location services are disabled.');
+        await Geolocator.openLocationSettings();
+        if (!serviceEnabled) {
+          return Future.error('Location services are disabled.');
+        }else{
+          try {
+            currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: widget.desiredAccuracy!);
+            d("position = $currentPosition");
+
+            setState(() => _currentPosition = currentPosition);
+          } catch (e) {
+            currentPosition = null;
+            d("_initCurrentLocation#e = $e");
+          }
+        }
+      }*/
 
     if (!mounted) return;
 
@@ -185,11 +246,11 @@ class MapPickerState extends State<MapPicker> {
   double circleRadius = 10000;
   getZoomLevel() {
     if (circles.isNotEmpty) {
-  //    if (circles.first != null) {
-        double radius = circles.first.radius;
-        double scale = radius / 500;
-        zoomLevel = (16 - log(scale) / log(2))- 0.5;
-   //   }
+      //    if (circles.first != null) {
+      double radius = circles.first.radius;
+      double scale = radius / 500;
+      zoomLevel = (16 - log(scale) / log(2)) - 0.5;
+      //   }
       print("zoom called = " + zoomLevel.toString());
       return zoomLevel;
     } else {
@@ -209,7 +270,7 @@ class MapPickerState extends State<MapPicker> {
   @override
   void initState() {
     super.initState();
-    if (widget.automaticallyAnimateToCurrentLocation! && !widget.requiredGPS!) _initCurrentLocation();
+    if (widget.automaticallyAnimateToCurrentLocation! && !widget.requiredGPS!) _initCurrentLocation(false);
 
     if (widget.mapStylePath != null) {
       rootBundle.loadString(widget.mapStylePath!).then((string) {
@@ -222,7 +283,7 @@ class MapPickerState extends State<MapPicker> {
   Widget build(BuildContext context) {
     if (widget.requiredGPS!) {
       _checkGeolocationPermission();
-      if (_currentPosition == null) _initCurrentLocation();
+      if (_currentPosition == null) _initCurrentLocation(false);
     }
 
     if (_currentPosition != null && dialogOpen != null) Navigator.of(context, rootNavigator: true).pop();
@@ -299,7 +360,9 @@ class MapPickerState extends State<MapPicker> {
             myLocationButtonEnabled: widget.myLocationButtonEnabled,
             layersButtonEnabled: widget.layersButtonEnabled,
             onToggleMapTypePressed: _onToggleMapTypePressed,
-            onMyLocationPressed: _initCurrentLocation,
+            onMyLocationPressed: () {
+              _initCurrentLocation(true);
+            },
           ),
           pin(),
           locationCard(),
@@ -370,7 +433,7 @@ class MapPickerState extends State<MapPicker> {
                                   _address ?? S.of(context)?.unnamedPlace ?? 'Unnamed place',
                                   style: TextStyle(color: Color(0xFF505050), fontSize: H4Size, fontWeight: FontWeight.w400),
                                 ),
-                               /* SizedBox(height: 5),
+                                /* SizedBox(height: 5),
                                 Text(
                                   'This allows the Q-expert to navigate properly',
                                   style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w400),
@@ -409,11 +472,7 @@ class MapPickerState extends State<MapPicker> {
                         onTap: () {
                           Navigator.of(context).pop({
                             'location': LocationResult(
-                              latLng: locationProvider.lastIdleLocation,
-                              address: _address,
-                              placeId: _placeId,
-                              radius: circleRadius
-                            )
+                                latLng: locationProvider.lastIdleLocation, address: _address, placeId: _placeId, radius: circleRadius)
                           });
                         },
                       ),
@@ -525,7 +584,7 @@ class MapPickerState extends State<MapPicker> {
                 child: Text(S.of(context)?.ok ?? 'Ok'),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
-                  _initCurrentLocation();
+                  _initCurrentLocation(false);
                   dialogOpen = null;
                 },
               ),
@@ -604,7 +663,7 @@ class _MapFabs extends StatelessWidget {
     required this.layersButtonEnabled,
     required this.onToggleMapTypePressed,
     required this.onMyLocationPressed,
-  })  : super(key: key);
+  }) : super(key: key);
 
   final bool? myLocationButtonEnabled;
   final bool? layersButtonEnabled;

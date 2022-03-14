@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   LocationResult _pickedLocation;
-  String apiKey = "";
+  String apiKey = "AIzaSyDhu9GPYk79vvzzzF3iE7UBFTdf3BOTjLw";
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
