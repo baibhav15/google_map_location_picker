@@ -100,8 +100,10 @@ class MapPickerState extends State<MapPicker> {
   String? _placeId;
 
   void _onToggleMapTypePressed() {
-    final MapType nextType = MapType.values[(_currentMapType.index + 1) % MapType.values.length];
-
+    MapType nextType = MapType.values[(_currentMapType.index + 1) % MapType.values.length];
+    if(nextType==MapType.none){
+      nextType = MapType.normal;
+    }
     setState(() => _currentMapType = nextType);
   }
 
