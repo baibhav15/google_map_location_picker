@@ -15,14 +15,14 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  google_maps_flutter: ^2.1.2
-  geolocator: ^8.2.0
+  google_maps_flutter: ^2.1.5
+  geolocator: ^8.2.1
   #android_intent_plus: ^3.1.1
   provider: ^6.0.2
   http: ^0.13.4
   stack_trace: ^1.10.0
-  package_info_plus: ^1.4.0
-  fluttertoast: ^8.0.8
+  package_info_plus: ^1.4.2
+  fluttertoast: ^8.0.9
 
 dev_dependencies:
   flutter_test:
