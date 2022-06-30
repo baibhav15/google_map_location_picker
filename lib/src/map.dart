@@ -87,7 +87,7 @@ class MapPickerState extends State<MapPicker> {
 
   Completer<GoogleMapController> mapController = Completer();
 
-  MapType _currentMapType = MapType.normal;
+  MapType _currentMapType = MapType.hybrid;
 
   String? _mapStyle;
 

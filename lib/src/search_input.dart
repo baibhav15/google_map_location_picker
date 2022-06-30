@@ -77,6 +77,7 @@ class SearchInputState extends State<SearchInput> {
           ),
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Icon(Icons.search),
           SizedBox(width: 8),
