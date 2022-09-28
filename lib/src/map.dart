@@ -4,7 +4,6 @@ import 'dart:math';
 //import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map_location_picker/components/location_needed.dart';
 import 'package:google_map_location_picker/generated/l10n.dart';
@@ -124,7 +123,6 @@ class MapPickerState extends State<MapPicker> {
   Future<void> _initCurrentLocation(bool btnPress) async {
     Position? currentPosition;
     LocationPermission permission;
-    bool serviceEnabled;
     try {
       permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
