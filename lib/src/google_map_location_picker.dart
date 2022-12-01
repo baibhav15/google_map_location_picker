@@ -385,7 +385,7 @@ class LocationPickerState extends State<LocationPicker> {
     super.dispose();
   }
 
-  static Color primaryColor = Color(0xFF0e52d6);
+  static Color primaryColor = Color(0xFF000000);
   static Color bgColorNew = Color(0xFFFAFAFA);
 
   @override

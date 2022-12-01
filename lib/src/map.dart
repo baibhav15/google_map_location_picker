@@ -18,8 +18,8 @@ import 'package:provider/provider.dart';
 import 'model/location_result.dart';
 import 'utils/location_utils.dart';
 
-Color primaryColor = Color(0xFF0e52d6);
-Color primaryColorLight = Color(0xFF02c2fa);
+Color primaryColor = Color(0xFF000000);
+Color primaryColorLight = Color(0xFF000000);
 Color bgColorNew = Color(0xFFFAFAFA);
 
 class MapPicker extends StatefulWidget {
@@ -522,7 +522,7 @@ class MapPickerState extends State<MapPicker> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset("assets/icons/logo_shape.png", height: 40, width: 40),
+            Image.asset("assets/icons/location_marker.png", height: 40, width: 40),
             Container(
               decoration: ShapeDecoration(
                 shadows: [
